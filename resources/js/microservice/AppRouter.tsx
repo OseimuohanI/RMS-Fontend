@@ -2,7 +2,7 @@ import { PageContext } from '@/microservice/page-context';
 import { getRouteProps } from '@/microservice/route-props';
 import type { User } from '@/types';
 import { useEffect, useMemo, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import About from '@/pages/about';
 import Blog from '@/pages/blog';
@@ -107,8 +107,8 @@ function RouterShell() {
 
 export default function AppRouter() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <RouterShell />
-    </BrowserRouter>
+    </HashRouter>
   );
 }
