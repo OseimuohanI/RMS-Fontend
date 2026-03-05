@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./resources/js/*"],
+      "@inertiajs/react": ["./resources/js/microservice/inertia"],
+      "@inertiajs/react/server": ["./resources/js/microservice/inertia-server"],
+      "laravel-vite-plugin/inertia-helpers": ["./resources/js/microservice/inertia-helpers"],
+      "ziggy-js": ["./resources/js/microservice/ziggy"],
+      "ziggy-js/*": ["./resources/js/microservice/ziggy"]
+    }
+  },
+  "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.d.ts"]
+}
