@@ -1,5 +1,6 @@
 import { usePageContext } from '@/microservice/page-context';
 import { backendUrl } from '@/microservice/backend';
+import { getCsrfToken } from '@/lib/csrf';
 import type { FormEvent, MouseEvent, PropsWithChildren, ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -37,7 +38,7 @@ type FormProps = PropsWithChildren<{
   action?: string;
   method?: HttpMethod;
   className?: string;
-  onSuccess?: () => void;
+  onSuccess?: (payload: unknown) => void;
   onError?: (errors: FormErrors) => void;
   options?: FormOptions;
   resetOnSuccess?: boolean | string[];
@@ -121,13 +122,20 @@ export function Link({ href, method, as, onClick, children, ...rest }: InertiaLi
 
     if (finalMethod !== 'get') {
       event.preventDefault();
+      const headers: Record<string, string> = {
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      };
+
+      const csrfToken = getCsrfToken();
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
+
       await fetch(backendUrl(route.url), {
         method: finalMethod.toUpperCase(),
         credentials: 'include',
-        headers: {
-          Accept: 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
+        headers,
       });
       if (route.url === '/logout') {
         navigate('/login');
@@ -201,14 +209,21 @@ export function Form({
     const data = transform ? transform(toObject(rawFormData)) : toObject(rawFormData);
 
     try {
+      const headers: Record<string, string> = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      };
+
+      const csrfToken = getCsrfToken();
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
+
       const response = await fetch(backendUrl(action), {
         method: method.toUpperCase(),
         credentials: 'include',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
+        headers,
         body: method === 'get' ? undefined : JSON.stringify(data),
       });
 
@@ -235,7 +250,16 @@ export function Form({
         return;
       }
 
-      onSuccess?.();
+      let payload: unknown = undefined;
+      if (response.status !== 204) {
+        try {
+          payload = await response.json();
+        } catch {
+          payload = undefined;
+        }
+      }
+
+      onSuccess?.(payload);
       setRecentlySuccessful(true);
 
       if (Array.isArray(resetOnSuccess)) {

@@ -7,10 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
+import { setAuthToken } from '@/lib/api';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/react';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
     status?: string;
@@ -23,6 +25,8 @@ export default function Login({
     canResetPassword,
     canRegister,
 }: LoginProps) {
+    const navigate = useNavigate();
+
     return (
         <AuthLayout
             title="Log in to your account"
@@ -34,6 +38,17 @@ export default function Login({
                 {...store.form()}
                 resetOnSuccess={['password']}
                 className="flex flex-col gap-6"
+                onSuccess={(payload) => {
+                    const token =
+                        typeof payload === 'object' && payload
+                            ? (payload as { token?: string }).token
+                            : undefined;
+
+                    if (token) {
+                        setAuthToken(token);
+                        navigate('/dashboard');
+                    }
+                }}
             >
                 {({ processing, errors }) => (
                     <>

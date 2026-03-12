@@ -3,11 +3,25 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
-import { logout } from '@/routes';
+import { api, setAuthToken } from '@/lib/api';
 import { send } from '@/routes/verification';
 import { Form, Head } from '@inertiajs/react';
+import { useNavigate } from 'react-router-dom';
 
 export default function VerifyEmail({ status }: { status?: string }) {
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await api.post('/api/logout');
+        } catch {
+            // ignore logout errors to ensure local cleanup
+        }
+
+        setAuthToken(null);
+        navigate('/login');
+    };
+
     return (
         <AuthLayout
             title="Verify email"
@@ -31,8 +45,12 @@ export default function VerifyEmail({ status }: { status?: string }) {
                         </Button>
 
                         <TextLink
-                            href={logout()}
+                            href="/logout"
                             className="mx-auto block text-sm"
+                            onClick={(event) => {
+                                event.preventDefault();
+                                void handleLogout();
+                            }}
                         >
                             Log out
                         </TextLink>
