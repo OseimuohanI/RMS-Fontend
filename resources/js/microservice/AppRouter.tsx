@@ -43,10 +43,19 @@ function RouterShell() {
 
   useEffect(() => {
     const loadUser = async () => {
+      const token = localStorage.getItem('sanctum_token');
+      if (!token) {
+        setUser(null);
+        return;
+      }
+
       try {
         const response = await fetch(backendUrl('/api/user'), {
           credentials: 'include',
-          headers: { Accept: 'application/json' },
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         });
         if (!response.ok) {
           setUser(null);
