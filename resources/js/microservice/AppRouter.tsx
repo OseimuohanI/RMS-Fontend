@@ -38,6 +38,10 @@ function RouterShell() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
     const loadUser = async () => {
       try {
         const response = await fetch(backendUrl('/api/user'), {
